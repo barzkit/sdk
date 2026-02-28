@@ -155,9 +155,9 @@ See [barzkit-examples](https://github.com/barzkit/examples) for complete working
 ## Roadmap
 
 - [x] Core SDK: createWallet, sendTransaction, permissions, freeze
+- [x] Batch transactions: atomic multi-call in one UserOperation
 - [ ] Multi-chain: Base Sepolia, Base mainnet
 - [ ] DeFi actions: swap, lend (Uniswap, Aave)
-- [ ] Dashboard: Next.js agent management UI
 - [ ] ElizaOS plugin
 - [ ] LangChain tool
 - [ ] x402 payment handler

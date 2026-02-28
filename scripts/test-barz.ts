@@ -32,6 +32,15 @@ async function main() {
   })
 
   console.log('Transaction hash:', txHash)
+
+  console.log('\nSending batch transaction (2x 0 ETH to self)...')
+
+  const batchHash = await agent.batchTransactions([
+    { to: agent.address, value: 0n },
+    { to: agent.address, value: 0n },
+  ])
+
+  console.log('Batch transaction hash:', batchHash)
 }
 
 main().catch((err) => {

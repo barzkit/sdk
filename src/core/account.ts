@@ -14,7 +14,7 @@ import type {
 } from './types'
 import { createClients } from './client'
 import { PermissionManager } from '../permissions/permissions'
-import { ConfigError, FrozenError, humanizeError, TransactionError } from '../utils/errors'
+import { BarzKitError, ConfigError, FrozenError, humanizeError, TransactionError } from '../utils/errors'
 import { ERC20_ABI } from '../utils/constants'
 
 /**
@@ -98,7 +98,10 @@ export async function createBarzAgent(config: AgentConfig): Promise<BarzAgent> {
     async batchTransactions(txs: TransactionRequest[]): Promise<Hash> {
       if (frozen) throw new FrozenError()
       if (txs.length === 0) {
-        throw new ConfigError('batchTransactions requires at least one transaction.')
+        throw new BarzKitError(
+          'batchTransactions requires at least one transaction.',
+          'BATCH_EMPTY',
+        )
       }
 
       for (const tx of txs) {
@@ -106,17 +109,22 @@ export async function createBarzAgent(config: AgentConfig): Promise<BarzAgent> {
       }
 
       try {
-        // TODO: actual batch encoding when permissionless.js supports it
-        const hash = await smartAccountClient.sendTransaction({
-          to: txs[0].to,
-          value: txs[0].value ?? 0n,
-          data: txs[0].data ?? ('0x' as Hex),
+        const userOpHash = await smartAccountClient.sendUserOperation({
+          calls: txs.map((tx) => ({
+            to: tx.to,
+            value: tx.value ?? 0n,
+            data: tx.data ?? ('0x' as Hex),
+          })),
+        })
+
+        const receipt = await smartAccountClient.waitForUserOperationReceipt({
+          hash: userOpHash,
         })
 
         const totalValue = txs.reduce((sum, tx) => sum + (tx.value ?? 0n), 0n)
         if (totalValue > 0n) permissionManager.recordSpend(totalValue)
 
-        return hash
+        return receipt.receipt.transactionHash
       } catch (error) {
         throw humanizeError(error)
       }
