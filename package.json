@@ -1,0 +1,68 @@
+{
+  "name": "@barzkit/sdk",
+  "version": "0.1.0",
+  "description": "Self-custody wallet infrastructure for AI agents. Deploy an autonomous, audited smart account in 5 minutes.",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "ai-agent",
+    "wallet",
+    "erc-4337",
+    "account-abstraction",
+    "trust-wallet",
+    "barz",
+    "self-custody",
+    "smart-account",
+    "diamond-proxy",
+    "passkeys",
+    "gasless"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/barzkit/sdk"
+  },
+  "homepage": "https://github.com/barzkit/sdk#readme",
+  "bugs": {
+    "url": "https://github.com/barzkit/sdk/issues"
+  },
+  "dependencies": {
+    "permissionless": ">=0.2.0",
+    "viem": ">=2.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "tslib": "^2.8.1",
+    "tsup": "^8.0.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.3.0",
+    "vitest": "^1.2.0"
+  },
+  "peerDependencies": {
+    "viem": ">=2.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
