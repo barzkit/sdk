@@ -142,7 +142,7 @@ Your AI Agent
 
 ## Examples
 
-See [barzkit-examples](https://github.com/barzkit/examples) for complete working examples.
+See [examples](https://github.com/barzkit/examples) for complete working examples.
 
 ## Security
 

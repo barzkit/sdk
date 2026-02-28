@@ -92,6 +92,11 @@ export interface BarzAgent {
   getPermissions(): AgentPermissions
   updatePermissions(permissions: Partial<AgentPermissions>): void
 
+  // ── Utilities ──
+
+  /** Get block explorer URL for a transaction hash */
+  getExplorerUrl(hash: Hash): string
+
   // ── Safety ──
 
   freeze(): Promise<Hash>
@@ -108,6 +113,8 @@ export interface ChainConfig {
   paymasterUrl: string
   entryPointAddress: Address
   entryPointVersion: '0.6'
+  /** Block explorer base URL (e.g., 'https://sepolia.etherscan.io') */
+  explorerUrl: string
 }
 
 export interface TransactionReceipt {

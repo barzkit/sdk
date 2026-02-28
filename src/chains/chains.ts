@@ -9,6 +9,7 @@ export const CHAIN_CONFIGS: Record<SupportedChain, ChainConfig> = {
     paymasterUrl: 'https://api.pimlico.io/v2/sepolia/rpc',
     entryPointAddress: '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789',
     entryPointVersion: '0.6',
+    explorerUrl: 'https://sepolia.etherscan.io',
   },
   'base-sepolia': {
     chain: baseSepolia,
@@ -17,6 +18,7 @@ export const CHAIN_CONFIGS: Record<SupportedChain, ChainConfig> = {
     paymasterUrl: 'https://api.pimlico.io/v2/base-sepolia/rpc',
     entryPointAddress: '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789',
     entryPointVersion: '0.6',
+    explorerUrl: 'https://sepolia.basescan.org',
   },
   base: {
     chain: base,
@@ -25,6 +27,7 @@ export const CHAIN_CONFIGS: Record<SupportedChain, ChainConfig> = {
     paymasterUrl: 'https://api.pimlico.io/v2/base/rpc',
     entryPointAddress: '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789',
     entryPointVersion: '0.6',
+    explorerUrl: 'https://basescan.org',
   },
 }
 
