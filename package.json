@@ -1,6 +1,6 @@
 {
   "name": "@barzkit/sdk",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "Self-custody wallet infrastructure for AI agents. Deploy an autonomous, audited smart account in 5 minutes.",
   "main": "./dist/index.cjs",
