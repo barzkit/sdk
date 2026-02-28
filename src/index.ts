@@ -23,6 +23,8 @@ export type {
   AgentConfig,
   AgentPermissions,
   BarzAgent,
+  SwapParams,
+  LendParams,
   TransactionRequest,
   TransactionReceipt,
   SupportedChain,
@@ -41,3 +43,16 @@ export {
 
 export { CHAIN_CONFIGS, getChainConfig } from './chains/chains'
 export { TOKENS, ERC20_ABI } from './utils/constants'
+
+export {
+  resolveToken,
+  getTokenDecimals,
+  isNativeETH,
+  ETH_SENTINEL,
+  buildSwapTransactions,
+  getSwapTokenAddresses,
+  UNISWAP_V3_ROUTER,
+  buildLendTransactions,
+  getLendTokenAddresses,
+  AAVE_V3_POOL,
+} from './actions'

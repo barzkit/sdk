@@ -8,14 +8,18 @@ import { toTrustSmartAccount } from 'permissionless/accounts'
 import type {
   AgentConfig,
   BarzAgent,
+  SwapParams,
+  LendParams,
   TransactionRequest,
   TransactionReceipt,
   AgentPermissions,
 } from './types'
 import { createClients } from './client'
 import { PermissionManager } from '../permissions/permissions'
-import { BarzKitError, ConfigError, FrozenError, humanizeError, TransactionError } from '../utils/errors'
+import { BarzKitError, ConfigError, FrozenError, PermissionError, humanizeError, TransactionError } from '../utils/errors'
 import { ERC20_ABI } from '../utils/constants'
+import { buildSwapTransactions, getSwapTokenAddresses } from '../actions/swap'
+import { buildLendTransactions, getLendTokenAddresses } from '../actions/lend'
 
 /**
  * Create a Barz agent wallet.
@@ -76,6 +80,33 @@ export async function createBarzAgent(config: AgentConfig): Promise<BarzAgent> {
   const permissionManager = new PermissionManager(config.permissions)
   let frozen = false
 
+  async function executeBatch(txs: TransactionRequest[]): Promise<Hash> {
+    for (const tx of txs) {
+      permissionManager.validate(tx)
+    }
+
+    try {
+      const userOpHash = await smartAccountClient.sendUserOperation({
+        calls: txs.map((tx) => ({
+          to: tx.to,
+          value: tx.value ?? 0n,
+          data: tx.data ?? ('0x' as Hex),
+        })),
+      })
+
+      const receipt = await smartAccountClient.waitForUserOperationReceipt({
+        hash: userOpHash,
+      })
+
+      const totalValue = txs.reduce((sum, tx) => sum + (tx.value ?? 0n), 0n)
+      if (totalValue > 0n) permissionManager.recordSpend(totalValue)
+
+      return receipt.receipt.transactionHash
+    } catch (error) {
+      throw humanizeError(error)
+    }
+  }
+
   const agent: BarzAgent = {
     address: smartAccount.address,
     chain: config.chain,
@@ -108,30 +139,7 @@ export async function createBarzAgent(config: AgentConfig): Promise<BarzAgent> {
         )
       }
 
-      for (const tx of txs) {
-        permissionManager.validate(tx)
-      }
-
-      try {
-        const userOpHash = await smartAccountClient.sendUserOperation({
-          calls: txs.map((tx) => ({
-            to: tx.to,
-            value: tx.value ?? 0n,
-            data: tx.data ?? ('0x' as Hex),
-          })),
-        })
-
-        const receipt = await smartAccountClient.waitForUserOperationReceipt({
-          hash: userOpHash,
-        })
-
-        const totalValue = txs.reduce((sum, tx) => sum + (tx.value ?? 0n), 0n)
-        if (totalValue > 0n) permissionManager.recordSpend(totalValue)
-
-        return receipt.receipt.transactionHash
-      } catch (error) {
-        throw humanizeError(error)
-      }
+      return executeBatch(txs)
     },
 
     async getBalance(token?: Address): Promise<bigint> {
@@ -168,6 +176,26 @@ export async function createBarzAgent(config: AgentConfig): Promise<BarzAgent> {
           hash,
         )
       }
+    },
+
+    async swap(params: SwapParams): Promise<Hash> {
+      if (frozen) throw new FrozenError()
+
+      const tokenAddresses = getSwapTokenAddresses(params, config.chain)
+      validateTokenPermissions(tokenAddresses, permissionManager.permissions)
+
+      const txs = buildSwapTransactions(params, config.chain, smartAccount.address)
+      return executeBatch(txs)
+    },
+
+    async lend(params: LendParams): Promise<Hash> {
+      if (frozen) throw new FrozenError()
+
+      const tokenAddresses = getLendTokenAddresses(params, config.chain)
+      validateTokenPermissions(tokenAddresses, permissionManager.permissions)
+
+      const txs = buildLendTransactions(params, config.chain, smartAccount.address)
+      return executeBatch(txs)
     },
 
     getExplorerUrl(hash: Hash): string {
@@ -216,5 +244,19 @@ function validateConfig(config: AgentConfig): void {
   }
   if (!config.pimlico?.apiKey) {
     throw new ConfigError('Missing "pimlico.apiKey". Get a free key at https://dashboard.pimlico.io')
+  }
+}
+
+function validateTokenPermissions(tokenAddresses: Address[], permissions: AgentPermissions): void {
+  if (!permissions.allowedTokens || permissions.allowedTokens.length === 0) return
+
+  const allowed = permissions.allowedTokens.map((a) => a.toLowerCase())
+  for (const token of tokenAddresses) {
+    if (!allowed.includes(token.toLowerCase())) {
+      throw new PermissionError(
+        `Token ${token} is not in the allowed list. ` +
+        `Allowed: ${permissions.allowedTokens.join(', ')}`,
+      )
+    }
   }
 }

@@ -10,6 +10,7 @@ Use the barzkit skill when you need to:
 - Set spending limits, contract whitelists, or time windows on agent wallets
 - Implement freeze/unfreeze (kill switch) for agent wallets
 - Batch multiple transactions into one atomic operation
+- Swap tokens via Uniswap V3 or lend via Aave V3 from an agent wallet
 - Deploy agent wallets on multiple chains (Sepolia, Base Sepolia, Base)
 - Integrate AI agents with DeFi protocols through a self-custody wallet
 
@@ -31,6 +32,8 @@ const agent = await createBarzAgent({
   owner: '0xPrivateKey',               // owner private key (hex)
   pimlico: { apiKey: 'pim_...' },      // Pimlico bundler API key
   gasless: true,                       // default: true, paymaster covers gas
+  index: 0n,                           // optional: deterministic multi-wallet
+  rpcUrl: 'https://...',               // optional: custom RPC
   permissions: {                       // optional
     maxAmountPerTx: '100 USDC',
     maxDailySpend: '500 USDC',
@@ -69,6 +72,50 @@ const balance = await agent.getBalance()
 const usdcBalance = await agent.getBalance('0xUsdcAddress')
 ```
 
+### DeFi actions
+
+```typescript
+// Swap tokens via Uniswap V3 (atomic approve + swap)
+const hash = await agent.swap({
+  from: 'USDC',        // token symbol or address
+  to: 'WETH',          // token symbol or address
+  amount: '100',       // human-readable amount
+  slippage: 0.5,       // optional: max slippage % (default: 0.5)
+  fee: 3000,           // optional: pool fee tier (default: 3000 = 0.3%)
+})
+
+// ETH input: no approve needed, router wraps to WETH
+const hash = await agent.swap({ from: 'ETH', to: 'USDC', amount: '0.1' })
+
+// Lend (supply) tokens to Aave V3 (atomic approve + supply)
+const hash = await agent.lend({
+  token: 'USDC',
+  amount: '50',
+  protocol: 'aave',    // only 'aave' supported currently
+})
+```
+
+Calldata builders are also exported for advanced use:
+
+```typescript
+import { buildSwapTransactions, buildLendTransactions } from '@barzkit/sdk'
+
+const swapTxs = buildSwapTransactions({ from: 'USDC', to: 'WETH', amount: '100' }, 'sepolia', agentAddr)
+const lendTxs = buildLendTransactions({ token: 'USDC', amount: '50', protocol: 'aave' }, 'sepolia', agentAddr)
+```
+
+### Token utilities
+
+```typescript
+import { resolveToken, getTokenDecimals, isNativeETH, ETH_SENTINEL } from '@barzkit/sdk'
+
+resolveToken('USDC', 'sepolia')  // → '0x1c7D...' (checksummed address)
+resolveToken('ETH', 'sepolia')   // → ETH_SENTINEL
+getTokenDecimals('USDC')         // → 6
+getTokenDecimals('WETH')         // → 18
+isNativeETH('ETH')               // → true
+```
+
 ### Permissions
 
 ```typescript
@@ -79,7 +126,7 @@ const perms = agent.getPermissions()
 agent.updatePermissions({ maxDailySpend: '1000 USDC' })
 ```
 
-Transactions that violate permissions throw `PermissionError` before reaching the blockchain.
+Transactions that violate permissions throw `PermissionError` before reaching the blockchain. Token permissions (`allowedTokens`) are also checked by `swap()` and `lend()`.
 
 ### Explorer URLs
 
@@ -119,6 +166,11 @@ await agent.unfreeze()             // resume
 - **Diamond Proxy**: Modular contract pattern — each function is a separate facet, hot-swappable
 - **Facets**: Account, Secp256k1 (agent key), Secp256r1 (passkey), Guardian, Lock, Restriction, Allowance
 
+## DeFi protocol addresses
+
+- **Uniswap V3 Router (Sepolia)**: `0x3bFA4769FB09eefC5a80d6E87c3B9C650f7Ae48E`
+- **Aave V3 Pool (Sepolia)**: `0x6Ae43d3271ff6888e7Fc43Fd7321a503ff738951`
+
 ## Dependencies
 
 - `viem` >= 2.0 — Ethereum TypeScript client
@@ -127,7 +179,7 @@ await agent.unfreeze()             // resume
 
 ## Error handling
 
-SDK throws typed errors: `PermissionError` (limit exceeded), `FrozenError` (wallet frozen), `ConfigError` (invalid config), `TransactionError` (tx failed), `BundlerError` (bundler issue), `BarzKitError` (base class). All include human-readable messages, not hex revert codes.
+SDK throws typed errors: `PermissionError` (limit exceeded), `FrozenError` (wallet frozen), `ConfigError` (invalid config), `TransactionError` (tx failed), `BundlerError` (bundler issue), `BarzKitError` (base class, also used for `UNSUPPORTED_CHAIN`, `UNKNOWN_TOKEN`, `INVALID_SWAP`, `UNKNOWN_PROTOCOL`, `NATIVE_ETH_NOT_SUPPORTED`). All include human-readable messages, not hex revert codes.
 
 ## Links
 

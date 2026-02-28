@@ -55,6 +55,36 @@ export interface AgentPermissions {
   }
 }
 
+// ─── DeFi Actions ───────────────────────────────────────────
+
+export interface SwapParams {
+  /** Token to swap from (symbol like 'USDC' or address) */
+  from: string
+
+  /** Token to swap to (symbol like 'WETH' or address) */
+  to: string
+
+  /** Amount to swap in human-readable units (e.g., '100' for 100 USDC) */
+  amount: string
+
+  /** Maximum slippage tolerance in percent. Default: 0.5 */
+  slippage?: number
+
+  /** Uniswap pool fee tier in basis points. Default: 3000 (0.3%) */
+  fee?: number
+}
+
+export interface LendParams {
+  /** Token to supply (symbol like 'USDC' or address) */
+  token: string
+
+  /** Amount to supply in human-readable units */
+  amount: string
+
+  /** Lending protocol to use */
+  protocol: 'aave'
+}
+
 // ─── Transactions ────────────────────────────────────────────
 
 export interface TransactionRequest {
@@ -86,6 +116,11 @@ export interface BarzAgent {
   batchTransactions(txs: TransactionRequest[]): Promise<Hash>
   getBalance(token?: Address): Promise<bigint>
   waitForTransaction(hash: Hash): Promise<TransactionReceipt>
+
+  // ── DeFi Actions ──
+
+  swap(params: SwapParams): Promise<Hash>
+  lend(params: LendParams): Promise<Hash>
 
   // ── Permissions ──
 

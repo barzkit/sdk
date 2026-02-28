@@ -156,8 +156,8 @@ See [examples](https://github.com/barzkit/examples) for complete working example
 
 - [x] Core SDK: createWallet, sendTransaction, permissions, freeze
 - [x] Batch transactions: atomic multi-call in one UserOperation
-- [ ] Multi-chain: Base Sepolia, Base mainnet
-- [ ] DeFi actions: swap, lend (Uniswap, Aave)
+- [x] Multi-chain: Base Sepolia, Base mainnet
+- [x] DeFi actions: swap, lend (Uniswap, Aave)
 - [ ] ElizaOS plugin
 - [ ] LangChain tool
 - [ ] x402 payment handler
@@ -173,4 +173,4 @@ MIT
 
 ---
 
-[Documentation](https://github.com/barzkit/sdk) · [Examples](https://github.com/barzkit/examples) · [Trust Wallet Barz](https://github.com/trustwallet/barz)
+[Documentation](https://github.com/barzkit/docs) · [Examples](https://github.com/barzkit/examples) · [Trust Wallet Barz](https://github.com/trustwallet/barz)
