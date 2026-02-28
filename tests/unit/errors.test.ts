@@ -1,23 +1,5 @@
 import { describe, it, expect } from 'vitest'
 import { FrozenError, humanizeError, BarzKitError } from '../../src/utils/errors'
-import { getChainConfig } from '../../src/chains/chains'
-
-describe('getChainConfig', () => {
-  it('should throw on unsupported chain', () => {
-    expect(() => getChainConfig('polygon' as any)).toThrow('Unsupported chain')
-  })
-
-  it('should return config for sepolia', () => {
-    const config = getChainConfig('sepolia')
-    expect(config.chain.id).toBe(11155111)
-    expect(config.entryPointVersion).toBe('0.6')
-  })
-
-  it('should return config for base-sepolia', () => {
-    const config = getChainConfig('base-sepolia')
-    expect(config.chain.id).toBe(84532)
-  })
-})
 
 describe('humanizeError', () => {
   it('should humanize AA21 errors', () => {

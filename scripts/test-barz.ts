@@ -41,6 +41,17 @@ async function main() {
   ])
 
   console.log('Batch transaction hash:', batchHash)
+
+  console.log('\nCreating Barz agent on Base Sepolia...')
+
+  const baseSepoliaAgent = await createBarzAgent({
+    chain: 'base-sepolia',
+    owner: ownerKey,
+    pimlico: { apiKey: pimlicoApiKey },
+  })
+
+  console.log('Base Sepolia agent address:', baseSepoliaAgent.address)
+  console.log('Explorer:', baseSepoliaAgent.getExplorerUrl(batchHash))
 }
 
 main().catch((err) => {

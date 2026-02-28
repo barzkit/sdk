@@ -1,8 +1,8 @@
 {
   "name": "@barzkit/sdk",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "module",
-  "description": "Self-custody wallet infrastructure for AI agents. Deploy an autonomous, audited smart account in 5 minutes.",
+  "description": "Self-custody AI agent wallets with passkeys, gasless transactions & programmable permissions (ERC-4337)",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -15,7 +15,8 @@
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "CHANGELOG.md"
   ],
   "scripts": {
     "build": "tsup",
@@ -26,17 +27,16 @@
     "clean": "rm -rf dist"
   },
   "keywords": [
-    "ai-agent",
-    "wallet",
-    "erc-4337",
-    "account-abstraction",
+    "typescript",
+    "sdk",
+    "web3",
+    "ai-agents",
+    "defi",
     "trust-wallet",
-    "barz",
-    "self-custody",
-    "smart-account",
-    "diamond-proxy",
-    "passkeys",
-    "gasless"
+    "account-abstraction",
+    "erc-4337",
+    "smart-accounts",
+    "barz"
   ],
   "author": "",
   "license": "MIT",

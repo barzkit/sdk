@@ -69,6 +69,10 @@ export async function createBarzAgent(config: AgentConfig): Promise<BarzAgent> {
         }),
   })
 
+  if (config.chain === 'base') {
+    console.warn('\u26a0\ufe0f Using Base mainnet \u2014 real funds at risk')
+  }
+
   const permissionManager = new PermissionManager(config.permissions)
   let frozen = false
 
@@ -164,6 +168,10 @@ export async function createBarzAgent(config: AgentConfig): Promise<BarzAgent> {
           hash,
         )
       }
+    },
+
+    getExplorerUrl(hash: Hash): string {
+      return `${chainConfig.explorerUrl}/tx/${hash}`
     },
 
     getPermissions(): AgentPermissions {

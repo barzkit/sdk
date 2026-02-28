@@ -10,6 +10,7 @@ Use the barzkit skill when you need to:
 - Set spending limits, contract whitelists, or time windows on agent wallets
 - Implement freeze/unfreeze (kill switch) for agent wallets
 - Batch multiple transactions into one atomic operation
+- Deploy agent wallets on multiple chains (Sepolia, Base Sepolia, Base)
 - Integrate AI agents with DeFi protocols through a self-custody wallet
 
 ## Install
@@ -79,6 +80,16 @@ agent.updatePermissions({ maxDailySpend: '1000 USDC' })
 ```
 
 Transactions that violate permissions throw `PermissionError` before reaching the blockchain.
+
+### Explorer URLs
+
+```typescript
+// Get block explorer link for any tx hash (auto-detects chain)
+const url = agent.getExplorerUrl(txHash)
+// 'https://sepolia.etherscan.io/tx/0x...'
+// 'https://sepolia.basescan.org/tx/0x...'
+// 'https://basescan.org/tx/0x...'
+```
 
 ### Safety (kill switch)
 
