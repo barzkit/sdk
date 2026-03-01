@@ -4,6 +4,7 @@
   <p align="center">
     <a href="https://www.npmjs.com/package/@barzkit/sdk"><img src="https://img.shields.io/npm/v/@barzkit/sdk.svg" alt="npm version"></a>
     <a href="https://github.com/barzkit/sdk/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License"></a>
+    <img src="https://img.shields.io/badge/tests-77%20passed-brightgreen" alt="tests">
   </p>
 </p>
 
@@ -68,7 +69,22 @@ await agent.freeze()
 
 **Kill Switch** — Freeze the agent wallet instantly via Guardian Facet.
 
+**DeFi Actions** — Swap tokens (Uniswap V3) and lend (Aave V3) with atomic approve+execute batches.
+
+**x402 Payments** — Machine-to-machine HTTP payments. Auto-pay 402 responses, retry with proof. `fetchWithPayment()`.
+
+**Multi-Chain** — Sepolia, Base Sepolia, Base mainnet. Add a new chain in 5 lines.
+
 **24/7 Security Monitoring** — Trust Wallet monitors every Barz account deployed via SDK. Free.
+
+## Plugins
+
+Use BarzKit with your AI framework of choice:
+
+| Plugin | Install | Description |
+|--------|---------|-------------|
+| [`@barzkit/elizaos`](https://www.npmjs.com/package/@barzkit/elizaos) | `npm i @barzkit/elizaos` | [ElizaOS](https://github.com/elizaOS/eliza) plugin — 8 actions, wallet provider, service |
+| [`@barzkit/langchain`](https://www.npmjs.com/package/@barzkit/langchain) | `npm i @barzkit/langchain` | [LangChain](https://github.com/langchain-ai/langchainjs) tools — 8 StructuredTools with zod schemas |
 
 ## API
 
@@ -173,4 +189,4 @@ MIT
 
 ---
 
-[Documentation](https://github.com/barzkit/docs) · [Examples](https://github.com/barzkit/examples) · [Trust Wallet Barz](https://github.com/trustwallet/barz)
+[Documentation](https://github.com/barzkit/docs) · [Examples](https://github.com/barzkit/examples) · [Plugins](https://github.com/barzkit/plugins) · [Trust Wallet Barz](https://github.com/trustwallet/barz) · [Pimlico Docs](https://docs.pimlico.io)
