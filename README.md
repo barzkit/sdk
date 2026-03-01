@@ -160,7 +160,7 @@ See [examples](https://github.com/barzkit/examples) for complete working example
 - [x] DeFi actions: swap, lend (Uniswap, Aave)
 - [x] x402 payment handler
 - [x] ElizaOS plugin
-- [ ] LangChain tool
+- [x] LangChain tool
 - [ ] On-chain permission enforcement via Diamond Facets
 
 ## Contributing

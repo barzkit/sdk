@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-03-02
+
+### Added
+
+- `@barzkit/langchain` — LangChain StructuredTool integration (separate package in `plugins/langchain/`)
+- 8 tools: barz_send_transaction, barz_check_balance, barz_swap, barz_lend, barz_batch_transactions, barz_freeze_wallet, barz_unfreeze_wallet, barz_fetch_with_payment
+- `createBarzTools(config)` — one-liner to create all tools from AgentConfig
+- `createBarzToolkit(agent)` — wrap existing BarzAgent in LangChain tools
+- Zod schemas with parameter descriptions for LLM tool calling
+- LangChain tools documentation (`docs/advanced/langchain-tool.md`)
+- `langchain-agent` example
+
 ## [0.1.5] - 2026-03-02
 
 ### Added
@@ -113,6 +125,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `AgentEvent` type definitions for future event hooks
 - Dual-package build: ESM (`.mjs`) + CJS (`.js`) + DTS (`.d.ts`)
 
+[0.2.0]: https://github.com/barzkit/sdk/compare/v0.1.5...v0.2.0
 [0.1.5]: https://github.com/barzkit/sdk/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/barzkit/sdk/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/barzkit/sdk/compare/v0.1.2...v0.1.3
