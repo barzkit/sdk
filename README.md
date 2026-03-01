@@ -158,9 +158,9 @@ See [examples](https://github.com/barzkit/examples) for complete working example
 - [x] Batch transactions: atomic multi-call in one UserOperation
 - [x] Multi-chain: Base Sepolia, Base mainnet
 - [x] DeFi actions: swap, lend (Uniswap, Aave)
+- [x] x402 payment handler
 - [ ] ElizaOS plugin
 - [ ] LangChain tool
-- [ ] x402 payment handler
 - [ ] On-chain permission enforcement via Diamond Facets
 
 ## Contributing

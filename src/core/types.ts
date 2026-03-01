@@ -55,6 +55,33 @@ export interface AgentPermissions {
   }
 }
 
+// ─── x402 Payment Protocol ──────────────────────────────────
+
+export interface X402Config {
+  /** Maximum payment amount per single request (e.g., '0.01 USDC') */
+  maxPaymentPerRequest: string
+
+  /** Maximum total payments per 24h rolling window (e.g., '1 USDC') */
+  maxDailyPayments: string
+
+  /** Optional whitelist of domains allowed to request payment */
+  allowedDomains?: string[]
+}
+
+export interface X402PaymentRequest {
+  /** Payment amount in atomic units (e.g., USDC has 6 decimals) */
+  amount: bigint
+
+  /** Merchant address to send payment to */
+  address: `0x${string}`
+
+  /** Token contract address */
+  token: `0x${string}`
+
+  /** Network name (e.g., 'base') */
+  network: string
+}
+
 // ─── DeFi Actions ───────────────────────────────────────────
 
 export interface SwapParams {
@@ -126,6 +153,11 @@ export interface BarzAgent {
 
   getPermissions(): AgentPermissions
   updatePermissions(permissions: Partial<AgentPermissions>): void
+
+  // ── x402 Payments ──
+
+  enableX402(config: X402Config): void
+  fetchWithPayment(url: string, options?: RequestInit): Promise<Response>
 
   // ── Utilities ──
 

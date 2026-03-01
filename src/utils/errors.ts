@@ -42,6 +42,13 @@ export class TransactionError extends BarzKitError {
   }
 }
 
+export class X402Error extends BarzKitError {
+  constructor(message: string) {
+    super(message, 'X402_ERROR')
+    this.name = 'X402Error'
+  }
+}
+
 export class BundlerError extends BarzKitError {
   constructor(message: string) {
     super(message, 'BUNDLER_ERROR')

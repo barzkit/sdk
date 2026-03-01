@@ -13,6 +13,7 @@ import type {
   TransactionRequest,
   TransactionReceipt,
   AgentPermissions,
+  X402Config,
 } from './types'
 import { createClients } from './client'
 import { PermissionManager } from '../permissions/permissions'
@@ -20,6 +21,7 @@ import { BarzKitError, ConfigError, FrozenError, PermissionError, humanizeError,
 import { ERC20_ABI } from '../utils/constants'
 import { buildSwapTransactions, getSwapTokenAddresses } from '../actions/swap'
 import { buildLendTransactions, getLendTokenAddresses } from '../actions/lend'
+import { X402Manager, createFetchWithPayment } from '../actions/x402'
 
 /**
  * Create a Barz agent wallet.
@@ -78,6 +80,7 @@ export async function createBarzAgent(config: AgentConfig): Promise<BarzAgent> {
   }
 
   const permissionManager = new PermissionManager(config.permissions)
+  const x402Manager = new X402Manager()
   let frozen = false
 
   async function executeBatch(txs: TransactionRequest[]): Promise<Hash> {
@@ -198,6 +201,12 @@ export async function createBarzAgent(config: AgentConfig): Promise<BarzAgent> {
       return executeBatch(txs)
     },
 
+    enableX402(x402Config: X402Config): void {
+      x402Manager.enable(x402Config)
+    },
+
+    fetchWithPayment: null as unknown as BarzAgent['fetchWithPayment'],
+
     getExplorerUrl(hash: Hash): string {
       return `${chainConfig.explorerUrl}/tx/${hash}`
     },
@@ -224,6 +233,11 @@ export async function createBarzAgent(config: AgentConfig): Promise<BarzAgent> {
       return !frozen
     },
   }
+
+  agent.fetchWithPayment = createFetchWithPayment(
+    x402Manager,
+    (tx) => agent.sendTransaction(tx),
+  )
 
   return agent
 }

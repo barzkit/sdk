@@ -30,6 +30,8 @@ export type {
   SupportedChain,
   ChainConfig,
   AgentEvent,
+  X402Config,
+  X402PaymentRequest,
 } from './core/types'
 
 export {
@@ -39,6 +41,7 @@ export {
   FrozenError,
   TransactionError,
   BundlerError,
+  X402Error,
 } from './utils/errors'
 
 export { CHAIN_CONFIGS, getChainConfig } from './chains/chains'
@@ -55,4 +58,9 @@ export {
   buildLendTransactions,
   getLendTokenAddresses,
   AAVE_V3_POOL,
+  parsePaymentRequired,
+  validateDomain,
+  X402Manager,
+  buildPaymentTransaction,
+  createFetchWithPayment,
 } from './actions'

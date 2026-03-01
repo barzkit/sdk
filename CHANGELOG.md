@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.4] - 2026-03-01
+
+### Added
+
+- x402 payment protocol support: machine-to-machine HTTP 402 payments
+- `enableX402()` method on `BarzAgent` — configure payment limits and domain whitelist
+- `fetchWithPayment()` method on `BarzAgent` — auto-pay 402 responses and retry with proof
+- `X402Config` and `X402PaymentRequest` interfaces
+- `X402Manager` — per-request and daily spend limit enforcement with 24h rolling window
+- `parsePaymentRequired()` — parse 402 response headers into structured payment request
+- `validateDomain()` — domain whitelist check for payment endpoints
+- `buildPaymentTransaction()` — build ERC-20 transfer for x402 payment
+- `X402Error` error class
+- Unit tests for x402 parsing, validation, manager, and fetch flow
+
 ## [0.1.3] - 2026-03-01
 
 ### Added
@@ -86,6 +101,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `AgentEvent` type definitions for future event hooks
 - Dual-package build: ESM (`.mjs`) + CJS (`.js`) + DTS (`.d.ts`)
 
+[0.1.4]: https://github.com/barzkit/sdk/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/barzkit/sdk/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/barzkit/sdk/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/barzkit/sdk/compare/v0.1.0...v0.1.1
