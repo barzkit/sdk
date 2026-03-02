@@ -85,6 +85,7 @@ Use BarzKit with your AI framework of choice:
 |--------|---------|-------------|
 | [`@barzkit/elizaos`](https://www.npmjs.com/package/@barzkit/elizaos) | `npm i @barzkit/elizaos` | [ElizaOS](https://github.com/elizaOS/eliza) plugin — 8 actions, wallet provider, service |
 | [`@barzkit/langchain`](https://www.npmjs.com/package/@barzkit/langchain) | `npm i @barzkit/langchain` | [LangChain](https://github.com/langchain-ai/langchainjs) tools — 8 StructuredTools with zod schemas |
+| [`@barzkit/mcp`](https://www.npmjs.com/package/@barzkit/mcp) | `npx @barzkit/mcp` | [MCP](https://modelcontextprotocol.io) server — 9 tools for Claude Desktop, Cursor, Windsurf |
 
 ## API
 
@@ -177,6 +178,7 @@ See [examples](https://github.com/barzkit/examples) for complete working example
 - [x] x402 payment handler
 - [x] ElizaOS plugin
 - [x] LangChain tool
+- [x] MCP Server (Claude Desktop, Cursor, Windsurf)
 - [ ] On-chain permission enforcement via Diamond Facets
 
 ## Contributing
