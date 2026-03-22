@@ -20,7 +20,6 @@ export class ChainPoller {
     private publicClient: PublicClient,
     private address: `0x${string}`,
     private emitter: TypedEventEmitter,
-    private explorerUrl: string,
     private pollInterval: number = 15_000,
   ) {}
 

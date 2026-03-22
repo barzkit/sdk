@@ -96,7 +96,6 @@ export async function createBarzAgent(config: AgentConfig): Promise<BarzAgent> {
         publicClient,
         smartAccount.address,
         emitter,
-        chainConfig.explorerUrl,
         config.pollInterval ?? 15_000,
       )
       poller.start()

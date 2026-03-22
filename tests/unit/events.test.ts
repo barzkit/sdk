@@ -162,7 +162,7 @@ describe('ChainPoller', () => {
   it('should start and stop', async () => {
     const client = createMockPublicClient()
     const emitter = new TypedEventEmitter()
-    const poller = new ChainPoller(client, '0xaddr' as `0x${string}`, emitter, 'https://etherscan.io', 1000)
+    const poller = new ChainPoller(client, '0xaddr' as `0x${string}`, emitter, 1000)
 
     expect(poller.isRunning()).toBe(false)
     await poller.start()
@@ -174,7 +174,7 @@ describe('ChainPoller', () => {
   it('should not start twice', async () => {
     const client = createMockPublicClient()
     const emitter = new TypedEventEmitter()
-    const poller = new ChainPoller(client, '0xaddr' as `0x${string}`, emitter, 'https://etherscan.io', 1000)
+    const poller = new ChainPoller(client, '0xaddr' as `0x${string}`, emitter, 1000)
 
     await poller.start()
     await poller.start()
@@ -191,7 +191,7 @@ describe('ChainPoller', () => {
     const handler = vi.fn()
     emitter.on('balanceChange', handler)
 
-    const poller = new ChainPoller(client, '0xaddr' as `0x${string}`, emitter, 'https://etherscan.io', 1000)
+    const poller = new ChainPoller(client, '0xaddr' as `0x${string}`, emitter, 1000)
     await poller.start()
 
     await vi.advanceTimersByTimeAsync(1000)
@@ -222,7 +222,7 @@ describe('ChainPoller', () => {
     const handler = vi.fn()
     emitter.on('incoming', handler)
 
-    const poller = new ChainPoller(client, '0xaddr' as `0x${string}`, emitter, 'https://etherscan.io', 1000)
+    const poller = new ChainPoller(client, '0xaddr' as `0x${string}`, emitter, 1000)
     await poller.start()
 
     await vi.advanceTimersByTimeAsync(1000)
@@ -244,7 +244,7 @@ describe('ChainPoller', () => {
     const handler = vi.fn()
     emitter.on('balanceChange', handler)
 
-    const poller = new ChainPoller(client, '0xaddr' as `0x${string}`, emitter, 'https://etherscan.io', 1000)
+    const poller = new ChainPoller(client, '0xaddr' as `0x${string}`, emitter, 1000)
     await poller.start()
 
     await vi.advanceTimersByTimeAsync(1000)
@@ -269,7 +269,7 @@ describe('ChainPoller', () => {
     const errorHandler = vi.fn()
     emitter.on('error', errorHandler)
 
-    const poller = new ChainPoller(client, '0xaddr' as `0x${string}`, emitter, 'https://etherscan.io', 1000)
+    const poller = new ChainPoller(client, '0xaddr' as `0x${string}`, emitter, 1000)
     await poller.start()
 
     await vi.advanceTimersByTimeAsync(1000)
