@@ -34,6 +34,13 @@ export type {
   X402PaymentRequest,
 } from './core/types'
 
+export type {
+  TransactionEvent,
+  BalanceChangeEvent,
+  IncomingTransferEvent,
+  EventMap,
+} from './events/types'
+
 export {
   BarzKitError,
   ConfigError,

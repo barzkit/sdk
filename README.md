@@ -4,7 +4,7 @@
   <p align="center">
     <a href="https://www.npmjs.com/package/@barzkit/sdk"><img src="https://img.shields.io/npm/v/@barzkit/sdk.svg" alt="npm version"></a>
     <a href="https://github.com/barzkit/sdk/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License"></a>
-    <img src="https://img.shields.io/badge/tests-77%20passed-brightgreen" alt="tests">
+    <img src="https://img.shields.io/badge/tests-93%20passed-brightgreen" alt="tests">
   </p>
 </p>
 
@@ -71,6 +71,8 @@ await agent.freeze()
 
 **DeFi Actions** — Swap tokens (Uniswap V3) and lend (Aave V3) with atomic approve+execute batches.
 
+**Event System** — React to on-chain activity: incoming transfers, balance changes, freeze/unfreeze. Webhook forwarding with retry. Lazy polling — zero overhead until first subscription.
+
 **x402 Payments** — Machine-to-machine HTTP payments. Auto-pay 402 responses, retry with proof. `fetchWithPayment()`.
 
 **Multi-Chain** — Sepolia, Base Sepolia, Base mainnet. Add a new chain in 5 lines.
@@ -108,6 +110,21 @@ agent.updatePermissions({ maxDailySpend: '200 USDC' })
 await agent.freeze()
 await agent.unfreeze()
 await agent.isActive()
+
+// Events — react to on-chain activity
+agent.on('balanceChange', (change) => {
+  console.log(`Balance: ${change.previous} → ${change.current}`)
+})
+agent.on('incoming', (tx) => {
+  console.log(`Received ${tx.value} from ${tx.from}`)
+})
+agent.on('frozen', () => console.log('Wallet frozen'))
+
+// Webhooks — forward events to a URL
+agent.onWebhook('incoming', 'https://api.example.com/webhook')
+
+// Stop all listeners
+agent.removeAllListeners()
 ```
 
 ## Configuration
@@ -126,8 +143,9 @@ interface AgentConfig {
     allowedContracts?: Address[]
     timeWindow?: { start: string; end: string }
   }
-  gasless?: boolean  // default: true
-  index?: bigint     // multiple wallets per owner
+  gasless?: boolean      // default: true
+  index?: bigint         // multiple wallets per owner
+  pollInterval?: number  // event polling ms, default: 15000
 }
 ```
 
@@ -179,6 +197,7 @@ See [examples](https://github.com/barzkit/examples) for complete working example
 - [x] ElizaOS plugin
 - [x] LangChain tool
 - [x] MCP Server (Claude Desktop, Cursor, Windsurf)
+- [x] Event system: on-chain listeners, webhooks, lazy polling
 - [ ] On-chain permission enforcement via Diamond Facets
 
 ## Contributing

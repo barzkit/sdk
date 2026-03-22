@@ -15,6 +15,7 @@ import type {
   AgentPermissions,
   X402Config,
 } from './types'
+import type { EventMap } from '../events/types'
 import { createClients } from './client'
 import { PermissionManager } from '../permissions/permissions'
 import { BarzKitError, ConfigError, FrozenError, PermissionError, humanizeError, TransactionError } from '../utils/errors'
@@ -22,6 +23,8 @@ import { ERC20_ABI } from '../utils/constants'
 import { buildSwapTransactions, getSwapTokenAddresses } from '../actions/swap'
 import { buildLendTransactions, getLendTokenAddresses } from '../actions/lend'
 import { X402Manager, createFetchWithPayment } from '../actions/x402'
+import { TypedEventEmitter } from '../events/emitter'
+import { ChainPoller } from '../events/poller'
 
 /**
  * Create a Barz agent wallet.
@@ -82,6 +85,23 @@ export async function createBarzAgent(config: AgentConfig): Promise<BarzAgent> {
   const permissionManager = new PermissionManager(config.permissions)
   const x402Manager = new X402Manager()
   let frozen = false
+
+  // ── Event System (lazy init) ──
+  const emitter = new TypedEventEmitter()
+  let poller: ChainPoller | null = null
+
+  function ensurePoller(): void {
+    if (!poller) {
+      poller = new ChainPoller(
+        publicClient,
+        smartAccount.address,
+        emitter,
+        chainConfig.explorerUrl,
+        config.pollInterval ?? 15_000,
+      )
+      poller.start()
+    }
+  }
 
   async function executeBatch(txs: TransactionRequest[]): Promise<Hash> {
     for (const tx of txs) {
@@ -221,16 +241,36 @@ export async function createBarzAgent(config: AgentConfig): Promise<BarzAgent> {
 
     async freeze(): Promise<Hash> {
       frozen = true
+      emitter.emit('frozen')
       return '0x0000000000000000000000000000000000000000000000000000000000000000' as Hash
     },
 
     async unfreeze(): Promise<Hash> {
       frozen = false
+      emitter.emit('unfrozen')
       return '0x0000000000000000000000000000000000000000000000000000000000000000' as Hash
     },
 
     async isActive(): Promise<boolean> {
       return !frozen
+    },
+
+    on<K extends keyof EventMap>(event: K, handler: (...args: EventMap[K]) => void): () => void {
+      ensurePoller()
+      return emitter.on(event, handler)
+    },
+
+    onWebhook(event: keyof EventMap, url: string): () => void {
+      ensurePoller()
+      return emitter.on(event, ((...args: unknown[]) => {
+        sendWebhook(url, event, args[0], emitter).catch(() => {})
+      }) as (...args: EventMap[typeof event]) => void)
+    },
+
+    removeAllListeners(): void {
+      emitter.removeAllListeners()
+      poller?.stop()
+      poller = null
     },
   }
 
@@ -259,6 +299,38 @@ function validateConfig(config: AgentConfig): void {
   if (!config.pimlico?.apiKey) {
     throw new ConfigError('Missing "pimlico.apiKey". Get a free key at https://dashboard.pimlico.io')
   }
+}
+
+async function sendWebhook(
+  url: string,
+  event: string,
+  data: unknown,
+  emitter: TypedEventEmitter,
+  retries = 3,
+): Promise<void> {
+  const body = JSON.stringify({ event, data, timestamp: Date.now() })
+  const delays = [1000, 2000, 4000]
+
+  for (let attempt = 0; attempt < retries; attempt++) {
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body,
+      })
+      if (response.ok) return
+      if (attempt < retries - 1) {
+        await new Promise((resolve) => setTimeout(resolve, delays[attempt]))
+      }
+    } catch (error) {
+      if (attempt === retries - 1) {
+        emitter.emit('error', error instanceof Error ? error : new Error(String(error)))
+        return
+      }
+      await new Promise((resolve) => setTimeout(resolve, delays[attempt]))
+    }
+  }
+  emitter.emit('error', new Error(`Webhook to ${url} failed after ${retries} attempts`))
 }
 
 function validateTokenPermissions(tokenAddresses: Address[], permissions: AgentPermissions): void {

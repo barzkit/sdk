@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Event system: `agent.on()`, `agent.onWebhook()`, `agent.removeAllListeners()`
+- Events: `balanceChange`, `incoming`, `frozen`, `unfrozen`, `transaction`, `error`
+- `ChainPoller` — polls chain for new blocks, balance changes, and ERC-20 Transfer logs
+- Webhook support with 3x retry and exponential backoff (1s, 2s, 4s)
+- Lazy initialization — poller starts on first `on()` call, stops on `removeAllListeners()`
+- `pollInterval` option in `AgentConfig` (default: 15000ms)
+- `TransactionEvent`, `BalanceChangeEvent`, `IncomingTransferEvent`, `EventMap` type exports
+- `freeze()` and `unfreeze()` now emit `frozen`/`unfrozen` events
+- Event system unit tests (16 tests)
+- `event-listener` example
+- Events guide (`docs/guides/events.md`)
+
 ## [0.2.1] - 2026-03-02
 
 ### Added

@@ -1,4 +1,5 @@
 import type { Address, Chain, Hex, Hash } from 'viem'
+import type { EventMap } from '../events/types'
 
 // ─── Configuration ───────────────────────────────────────────
 
@@ -31,6 +32,9 @@ export interface AgentConfig {
 
   /** Custom RPC URL. If not provided, uses default public RPC for the chain. */
   rpcUrl?: string
+
+  /** Polling interval in milliseconds for event system. Default: 15000 (15s). */
+  pollInterval?: number
 }
 
 // ─── Permissions ─────────────────────────────────────────────
@@ -169,6 +173,17 @@ export interface BarzAgent {
   freeze(): Promise<Hash>
   unfreeze(): Promise<Hash>
   isActive(): Promise<boolean>
+
+  // ── Events ──
+
+  /** Subscribe to on-chain events. Returns an unsubscribe function. Starts polling on first call. */
+  on<K extends keyof EventMap>(event: K, handler: (...args: EventMap[K]) => void): () => void
+
+  /** Subscribe to an event and forward it as a webhook POST to the given URL. */
+  onWebhook(event: keyof EventMap, url: string): () => void
+
+  /** Remove all event listeners and stop the chain poller. */
+  removeAllListeners(): void
 }
 
 // ─── Internal Types ──────────────────────────────────────────

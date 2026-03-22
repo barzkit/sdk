@@ -13,6 +13,8 @@ Use the barzkit skill when you need to:
 - Swap tokens via Uniswap V3 or lend via Aave V3 from an agent wallet
 - Deploy agent wallets on multiple chains (Sepolia, Base Sepolia, Base)
 - Integrate AI agents with DeFi protocols through a self-custody wallet
+- Listen for on-chain events (incoming transfers, balance changes) via polling
+- Set up webhook forwarding for wallet events
 
 ## Install
 
@@ -34,6 +36,7 @@ const agent = await createBarzAgent({
   gasless: true,                       // default: true, paymaster covers gas
   index: 0n,                           // optional: deterministic multi-wallet
   rpcUrl: 'https://...',               // optional: custom RPC
+  pollInterval: 15_000,                // optional: event polling interval ms
   permissions: {                       // optional
     maxAmountPerTx: '100 USDC',
     maxDailySpend: '500 USDC',
@@ -138,6 +141,22 @@ const url = agent.getExplorerUrl(txHash)
 // 'https://basescan.org/tx/0x...'
 ```
 
+### x402 payments (machine-to-machine)
+
+```typescript
+// Enable x402 with spending limits
+agent.enableX402({
+  maxPaymentPerRequest: '0.01 USDC',
+  maxDailyPayments: '1 USDC',
+  allowedDomains: ['api.example.com'],
+})
+
+// Fetch with auto-payment on HTTP 402
+const response = await agent.fetchWithPayment('https://api.example.com/data')
+```
+
+x402 helpers are also exported: `parsePaymentRequired()`, `validateDomain()`, `buildPaymentTransaction()`, `X402Manager`, `createFetchWithPayment()`.
+
 ### Safety (kill switch)
 
 ```typescript
@@ -145,6 +164,39 @@ await agent.freeze()              // stop all transactions immediately
 console.log(await agent.isActive()) // false
 await agent.unfreeze()             // resume
 ```
+
+### Events
+
+```typescript
+// Listen for balance changes (lazy — polling starts on first on())
+agent.on('balanceChange', (change) => {
+  console.log(`Balance: ${change.previous} -> ${change.current}`)
+})
+
+// Incoming ERC-20 transfers
+agent.on('incoming', (tx) => {
+  console.log(`Received ${tx.value} of ${tx.token} from ${tx.from}`)
+})
+
+// Freeze/unfreeze notifications
+agent.on('frozen', () => console.log('Frozen'))
+agent.on('unfrozen', () => console.log('Unfrozen'))
+
+// Errors from polling or webhooks
+agent.on('error', (err) => console.error(err))
+
+// Unsubscribe
+const unsub = agent.on('incoming', handler)
+unsub()
+
+// Webhook: forward events as HTTP POST
+agent.onWebhook('incoming', 'https://api.example.com/hook')
+
+// Stop all listeners and polling
+agent.removeAllListeners()
+```
+
+Config: `pollInterval` (ms, default 15000) controls how often the chain is polled.
 
 ## Architecture
 
@@ -179,7 +231,7 @@ await agent.unfreeze()             // resume
 
 ## Error handling
 
-SDK throws typed errors: `PermissionError` (limit exceeded), `FrozenError` (wallet frozen), `ConfigError` (invalid config), `TransactionError` (tx failed), `BundlerError` (bundler issue), `BarzKitError` (base class, also used for `UNSUPPORTED_CHAIN`, `UNKNOWN_TOKEN`, `INVALID_SWAP`, `UNKNOWN_PROTOCOL`, `NATIVE_ETH_NOT_SUPPORTED`). All include human-readable messages, not hex revert codes.
+SDK throws typed errors: `PermissionError` (limit exceeded), `FrozenError` (wallet frozen), `ConfigError` (invalid config), `TransactionError` (tx failed), `BundlerError` (bundler issue), `X402Error` (payment protocol error), `BarzKitError` (base class, also used for `UNSUPPORTED_CHAIN`, `UNKNOWN_TOKEN`, `INVALID_SWAP`, `UNKNOWN_PROTOCOL`, `NATIVE_ETH_NOT_SUPPORTED`). All include human-readable messages, not hex revert codes.
 
 ## Links
 
