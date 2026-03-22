@@ -1,6 +1,6 @@
 {
   "name": "@barzkit/sdk",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "type": "module",
   "description": "Self-custody AI agent wallets with passkeys, gasless transactions & programmable permissions (ERC-4337)",
   "main": "./dist/index.cjs",

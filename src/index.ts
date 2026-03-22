@@ -41,6 +41,18 @@ export type {
   EventMap,
 } from './events/types'
 
+export type {
+  TransactionRecord,
+  TransactionHistoryOptions,
+} from './history/types'
+
+export type { DryRunResult } from './core/dryrun'
+
+export type {
+  Session,
+  CreateSessionOptions,
+} from './sessions/types'
+
 export {
   BarzKitError,
   ConfigError,
@@ -49,6 +61,7 @@ export {
   TransactionError,
   BundlerError,
   X402Error,
+  SessionExpiredError,
 } from './utils/errors'
 
 export { CHAIN_CONFIGS, getChainConfig } from './chains/chains'

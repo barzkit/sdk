@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.3] - 2026-03-22
+
+### Added
+
+- `getTransactions()` — fetch transaction history from Etherscan-compatible API
+- `TransactionRecord` and `TransactionHistoryOptions` type exports
+- `explorerApiUrl` field in `ChainConfig` for each supported chain
+- Pagination (`limit`, `offset`), block range filters (`startBlock`, `endBlock`)
+- Direction detection (`incoming` / `outgoing`), status mapping, explorer URLs
+- Transaction history unit tests (13 tests)
+- `transaction-history` example
+- Transaction history guide (`docs/guides/transaction-history.md`)
+- `dryRun()` — simulate transactions without sending: gas estimation, permission check, revert detection
+- `DryRunResult` type export
+- Dry run supports single tx and batch
+- Dry run unit tests (6 tests)
+- Dry run guide (`docs/guides/dry-run.md`)
+- Session keys: `createSession()`, `getSessions()`, `revokeSession()`, `revokeAllSessions()`
+- `Session` interface with `isExpired()`, `remainingTime()`, scoped permissions
+- `sessionExpiry` config option — auto-check before every transaction
+- `SessionExpiredError` error class
+- `SessionManager` internal session store
+- Duration parsing: `'24h'`, `'30m'`, `'7d'`, `'60s'`
+- Session keys unit tests (18 tests)
+- Session keys guide (`docs/guides/session-keys.md`)
+- `session-keys` example
+
 ## [0.2.2] - 2026-03-22
 
 ### Added
@@ -151,6 +178,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `AgentEvent` type definitions for future event hooks
 - Dual-package build: ESM (`.mjs`) + CJS (`.js`) + DTS (`.d.ts`)
 
+[0.2.3]: https://github.com/barzkit/sdk/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/barzkit/sdk/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/barzkit/sdk/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/barzkit/sdk/compare/v0.1.5...v0.2.0

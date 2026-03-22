@@ -102,6 +102,21 @@ await agent.getBalance()          // ETH
 await agent.getBalance(usdcAddr)  // ERC-20
 await agent.waitForTransaction(hash)
 
+// Transaction history
+const txs = await agent.getTransactions({ limit: 10 })
+
+// Dry run — simulate without sending
+const sim = await agent.dryRun({ to, value })
+console.log(sim.success, sim.gasCostETH, sim.permissionCheck)
+
+// Session keys — temporary scoped access
+const session = agent.createSession({
+  expiresIn: '24h',
+  permissions: { maxDailySpend: '100 USDC' },
+})
+agent.getSessions()              // list all
+agent.revokeSession(session.id)  // revoke one
+
 // Permissions
 agent.getPermissions()
 agent.updatePermissions({ maxDailySpend: '200 USDC' })

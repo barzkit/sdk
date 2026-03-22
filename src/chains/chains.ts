@@ -10,6 +10,7 @@ export const CHAIN_CONFIGS: Record<SupportedChain, ChainConfig> = {
     entryPointAddress: '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789',
     entryPointVersion: '0.6',
     explorerUrl: 'https://sepolia.etherscan.io',
+    explorerApiUrl: 'https://api-sepolia.etherscan.io/api',
   },
   'base-sepolia': {
     chain: baseSepolia,
@@ -19,6 +20,7 @@ export const CHAIN_CONFIGS: Record<SupportedChain, ChainConfig> = {
     entryPointAddress: '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789',
     entryPointVersion: '0.6',
     explorerUrl: 'https://sepolia.basescan.org',
+    explorerApiUrl: 'https://api-sepolia.basescan.org/api',
   },
   base: {
     chain: base,
@@ -28,6 +30,7 @@ export const CHAIN_CONFIGS: Record<SupportedChain, ChainConfig> = {
     entryPointAddress: '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789',
     entryPointVersion: '0.6',
     explorerUrl: 'https://basescan.org',
+    explorerApiUrl: 'https://api.basescan.org/api',
   },
 }
 

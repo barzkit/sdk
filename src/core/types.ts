@@ -1,5 +1,8 @@
 import type { Address, Chain, Hex, Hash } from 'viem'
 import type { EventMap } from '../events/types'
+import type { TransactionRecord, TransactionHistoryOptions } from '../history/types'
+import type { DryRunResult } from './dryrun'
+import type { Session, CreateSessionOptions } from '../sessions/types'
 
 // ─── Configuration ───────────────────────────────────────────
 
@@ -35,6 +38,9 @@ export interface AgentConfig {
 
   /** Polling interval in milliseconds for event system. Default: 15000 (15s). */
   pollInterval?: number
+
+  /** Unix timestamp (seconds) when this session expires. If set, all tx methods check expiry first. */
+  sessionExpiry?: number
 }
 
 // ─── Permissions ─────────────────────────────────────────────
@@ -168,11 +174,32 @@ export interface BarzAgent {
   /** Get block explorer URL for a transaction hash */
   getExplorerUrl(hash: Hash): string
 
+  /** Fetch transaction history from block explorer API */
+  getTransactions(options?: TransactionHistoryOptions): Promise<TransactionRecord[]>
+
+  /** Simulate a transaction without sending it. Returns gas estimate and permission check. */
+  dryRun(tx: TransactionRequest): Promise<DryRunResult>
+  dryRun(txs: TransactionRequest[]): Promise<DryRunResult>
+
   // ── Safety ──
 
   freeze(): Promise<Hash>
   unfreeze(): Promise<Hash>
   isActive(): Promise<boolean>
+
+  // ── Sessions ──
+
+  /** Create a temporary session key with scoped permissions and expiration. */
+  createSession(options: CreateSessionOptions): Session
+
+  /** List all created sessions (active and expired). */
+  getSessions(): Session[]
+
+  /** Revoke a session by ID. Returns true if found and removed. */
+  revokeSession(id: string): boolean
+
+  /** Revoke all sessions. */
+  revokeAllSessions(): void
 
   // ── Events ──
 
@@ -197,6 +224,8 @@ export interface ChainConfig {
   entryPointVersion: '0.6'
   /** Block explorer base URL (e.g., 'https://sepolia.etherscan.io') */
   explorerUrl: string
+  /** Block explorer API URL for transaction history (e.g., 'https://api-sepolia.etherscan.io/api') */
+  explorerApiUrl: string
 }
 
 export interface TransactionReceipt {

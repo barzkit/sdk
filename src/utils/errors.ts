@@ -56,6 +56,18 @@ export class BundlerError extends BarzKitError {
   }
 }
 
+export class SessionExpiredError extends BarzKitError {
+  constructor(expiredAt: number) {
+    const ago = Math.floor(Date.now() / 1000) - expiredAt
+    const agoStr = ago < 60 ? `${ago}s` : ago < 3600 ? `${Math.floor(ago / 60)}m` : `${Math.floor(ago / 3600)}h`
+    super(
+      `Session expired ${agoStr} ago. Create a new session.`,
+      'SESSION_EXPIRED',
+    )
+    this.name = 'SessionExpiredError'
+  }
+}
+
 export function humanizeError(error: unknown): BarzKitError {
   const message = error instanceof Error ? error.message : String(error)
 

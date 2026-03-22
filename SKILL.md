@@ -141,6 +141,82 @@ const url = agent.getExplorerUrl(txHash)
 // 'https://basescan.org/tx/0x...'
 ```
 
+### Session keys
+
+```typescript
+// Create a temporary session key (client-side enforcement)
+const session = agent.createSession({
+  expiresIn: '24h',          // or expiresAt: new Date(...)
+  permissions: {
+    maxDailySpend: '200 USDC',
+    allowedContracts: ['0xUniswap...'],
+  },
+  label: 'trading-bot',      // optional
+})
+
+// session has: id, privateKey, address, expiresAt, permissions, label
+session.isExpired()     // false
+session.remainingTime() // seconds remaining
+
+// Create a session-scoped agent
+const sessionAgent = await createBarzAgent({
+  chain: 'sepolia',
+  owner: session.privateKey,
+  pimlico: { apiKey: '...' },
+  permissions: session.permissions,
+  sessionExpiry: session.expiresAt, // throws SessionExpiredError when expired
+})
+
+// Manage sessions
+agent.getSessions()              // all sessions
+agent.revokeSession(session.id)  // remove one
+agent.revokeAllSessions()        // remove all
+```
+
+Duration formats: `'24h'`, `'30m'`, `'7d'`, `'60s'`. `SessionExpiredError` is thrown automatically.
+
+### Dry run (simulation)
+
+```typescript
+// Simulate a single transaction
+const result = await agent.dryRun({
+  to: '0xRecipient',
+  value: parseEther('0.1'),
+})
+
+console.log(result.success)              // true/false
+console.log(result.gasEstimate)          // bigint gas units
+console.log(result.gasCostETH)           // "0.000123 ETH"
+console.log(result.permissionCheck)      // { passed, violations }
+console.log(result.error)                // revert reason if failed
+
+// Simulate a batch
+const result = await agent.dryRun([tx1, tx2, tx3])
+```
+
+Checks: frozen state, permission violations (without sending), on-chain gas estimation. If permissions fail, skips on-chain call.
+
+### Transaction history
+
+```typescript
+// Fetch last 20 transactions (default)
+const txs = await agent.getTransactions()
+
+// With options
+const txs = await agent.getTransactions({
+  limit: 50,            // max 100
+  offset: 0,
+  startBlock: 1000000n,
+  endBlock: 2000000n,
+})
+
+// Each tx has: hash, from, to, value, timestamp, blockNumber, status, direction, explorerUrl
+txs[0].direction // 'incoming' | 'outgoing'
+txs[0].status    // 'success' | 'failed'
+```
+
+Uses Etherscan-compatible API (no API key needed for testnets). Throws `BarzKitError` with code `HISTORY_API_ERROR` on failure.
+
 ### x402 payments (machine-to-machine)
 
 ```typescript

@@ -18,13 +18,18 @@ import type {
 import type { EventMap } from '../events/types'
 import { createClients } from './client'
 import { PermissionManager } from '../permissions/permissions'
-import { BarzKitError, ConfigError, FrozenError, PermissionError, humanizeError, TransactionError } from '../utils/errors'
+import { BarzKitError, ConfigError, FrozenError, PermissionError, SessionExpiredError, humanizeError, TransactionError } from '../utils/errors'
 import { ERC20_ABI } from '../utils/constants'
 import { buildSwapTransactions, getSwapTokenAddresses } from '../actions/swap'
 import { buildLendTransactions, getLendTokenAddresses } from '../actions/lend'
 import { X402Manager, createFetchWithPayment } from '../actions/x402'
 import { TypedEventEmitter } from '../events/emitter'
 import { ChainPoller } from '../events/poller'
+import { fetchTransactions } from '../history/history'
+import type { TransactionRecord, TransactionHistoryOptions } from '../history/types'
+import { executeDryRun, type DryRunResult } from './dryrun'
+import { SessionManager } from '../sessions/session'
+import type { Session, CreateSessionOptions } from '../sessions/types'
 
 /**
  * Create a Barz agent wallet.
@@ -85,6 +90,14 @@ export async function createBarzAgent(config: AgentConfig): Promise<BarzAgent> {
   const permissionManager = new PermissionManager(config.permissions)
   const x402Manager = new X402Manager()
   let frozen = false
+  const sessionManager = new SessionManager()
+  const sessionExpiry = config.sessionExpiry
+
+  function checkSessionExpiry(): void {
+    if (sessionExpiry && Math.floor(Date.now() / 1000) >= sessionExpiry) {
+      throw new SessionExpiredError(sessionExpiry)
+    }
+  }
 
   // ── Event System (lazy init) ──
   const emitter = new TypedEventEmitter()
@@ -135,6 +148,7 @@ export async function createBarzAgent(config: AgentConfig): Promise<BarzAgent> {
     owner: ownerAccount.address,
 
     async sendTransaction(tx: TransactionRequest): Promise<Hash> {
+      checkSessionExpiry()
       if (frozen) throw new FrozenError()
       permissionManager.validate(tx)
 
@@ -153,6 +167,7 @@ export async function createBarzAgent(config: AgentConfig): Promise<BarzAgent> {
     },
 
     async batchTransactions(txs: TransactionRequest[]): Promise<Hash> {
+      checkSessionExpiry()
       if (frozen) throw new FrozenError()
       if (txs.length === 0) {
         throw new BarzKitError(
@@ -230,6 +245,25 @@ export async function createBarzAgent(config: AgentConfig): Promise<BarzAgent> {
       return `${chainConfig.explorerUrl}/tx/${hash}`
     },
 
+    async getTransactions(options?: TransactionHistoryOptions): Promise<TransactionRecord[]> {
+      return fetchTransactions(
+        chainConfig.explorerApiUrl,
+        chainConfig.explorerUrl,
+        smartAccount.address,
+        options,
+      )
+    },
+
+    async dryRun(txOrTxs: TransactionRequest | TransactionRequest[]): Promise<DryRunResult> {
+      return executeDryRun(
+        smartAccountClient,
+        pimlicoClient,
+        txOrTxs,
+        permissionManager,
+        frozen,
+      )
+    },
+
     getPermissions(): AgentPermissions {
       return permissionManager.permissions
     },
@@ -252,6 +286,22 @@ export async function createBarzAgent(config: AgentConfig): Promise<BarzAgent> {
 
     async isActive(): Promise<boolean> {
       return !frozen
+    },
+
+    createSession(options: CreateSessionOptions): Session {
+      return sessionManager.create(options)
+    },
+
+    getSessions(): Session[] {
+      return sessionManager.getAll()
+    },
+
+    revokeSession(id: string): boolean {
+      return sessionManager.revoke(id)
+    },
+
+    revokeAllSessions(): void {
+      sessionManager.revokeAll()
     },
 
     on<K extends keyof EventMap>(event: K, handler: (...args: EventMap[K]) => void): () => void {
