@@ -1,3 +1,4 @@
+import { randomBytes } from 'crypto'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import type { AgentPermissions } from '../core/types'
 import { BarzKitError } from '../utils/errors'
@@ -66,7 +67,11 @@ export function createSession(options: CreateSessionOptions): Session {
 
   const privateKey = generatePrivateKey()
   const account = privateKeyToAccount(privateKey)
-  const id = crypto.randomUUID()
+  const bytes = randomBytes(16)
+  bytes[6] = (bytes[6] & 0x0f) | 0x40
+  bytes[8] = (bytes[8] & 0x3f) | 0x80
+  const hex = bytes.toString('hex')
+  const id = `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`
 
   const permissions: AgentPermissions = options.permissions ? { ...options.permissions } : {}
 
